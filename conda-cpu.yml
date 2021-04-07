@@ -12,3 +12,8 @@ dependencies:
     - flask
     - seaborn
     - pillow
+    - azureml
+    - azureml-core
+    - azureml-defaults
+    - azureml-contrib-services
+    - joblib
