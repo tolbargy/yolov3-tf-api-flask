@@ -8,7 +8,7 @@ def main():
     print('Registrando modelo...')
     model = Model.register(
         workspace = ws,
-        model_path ="./weights",
+        model_path ="./weights/tf",
         model_name = "yolov3-tf",
         tags = {"version": "1"},
         description = "Model yolov3 with tensorflow"
