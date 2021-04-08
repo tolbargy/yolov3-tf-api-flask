@@ -1,22 +1,11 @@
 from azureml.core import Workspace
 from azureml.core.webservice import AciWebservice
-from azureml.core.webservice import Webservice
 from azureml.core.model import InferenceConfig
-from azureml.core.environment import Environment
-from azureml.core import Workspace
 from azureml.core.model import Model
-from azureml.core.conda_dependencies import CondaDependencies
 
 def main():
     print('Cargando configuracion workspace...')
     ws = Workspace.from_config()
-
-    #print('Registrando modelo...')
-    #model = Model.register(workspace = ws,
-    #          model_path ="weights/yolov3.tf.data-00000-of-00001",
-    #          model_name = "yolov3-tf",
-    #          tags = {"version": "1"},
-    #          description = "Model yolov3 with tensorflow")
 
     print('Obteniendo modelo...')
     model = Model(ws, 'yolov3-tf')
@@ -31,7 +20,7 @@ def main():
 
     inference_config = InferenceConfig(
         entry_script="score.py",
-        source_directory="./lib",
+        source_directory="../azure",
         conda_file='conda-cpu.yml',
         runtime='python'
     )

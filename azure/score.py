@@ -32,6 +32,8 @@ def init():
     os.system('ls -la')
     os.system('pwd')
 
+    os.system('ls ./azureml-models/yolov3-tf/2 -la')
+
     # load in weights and classes
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
@@ -42,7 +44,7 @@ def init():
     else:
         yolo = YoloV3(classes=num_classes)
 
-    yolo.load_weights(weights_path).expect_partial()
+    yolo.load_weights('./azureml-models/yolov3-tf/2/yolov3.tf').expect_partial()
     print('weights loaded')
 
     class_names = [c.strip() for c in open(classes_path).readlines()]
