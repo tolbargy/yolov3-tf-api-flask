@@ -52,8 +52,14 @@ def init():
 
 @rawhttp
 def run(request):
-    print(request)
-    print('runnnnnnnnn zzz')
+    print('RUNNNNN!!')
+    full_path = request.full_path
+    if full_path == '/score?type=predictions':
+        return predictions(request)
+    elif full_path == '/score?type=image':
+        return get_image(request)
+
+def predictions(request):
     raw_images = []
     images = request.files.getlist("images")
     image_names = []
@@ -109,3 +115,40 @@ def run(request):
         #return jsonify({"response":response}), 200
     except FileNotFoundError:
         return AMLResponse("bad request", 500)
+
+
+def get_image(request):
+    image = request.files["images"]
+    image_name = image.filename
+    image.save(os.path.join(os.getcwd(), image_name))
+    img_raw = tf.image.decode_image(
+        open(image_name, 'rb').read(), channels=3)
+    img = tf.expand_dims(img_raw, 0)
+    img = transform_images(img, size)
+
+    t1 = time.time()
+    boxes, scores, classes, nums = yolo(img)
+    t2 = time.time()
+    print('time: {}'.format(t2 - t1))
+
+    print('detections:')
+    for i in range(nums[0]):
+        print('\t{}, {}, {}'.format(class_names[int(classes[0][i])],
+                                        np.array(scores[0][i]),
+                                        np.array(boxes[0][i])))
+    img = cv2.cvtColor(img_raw.numpy(), cv2.COLOR_RGB2BGR)
+    img = draw_outputs(img, (boxes, scores, classes, nums), class_names)
+    cv2.imwrite(output_path + 'detection.jpg', img)
+    print('output saved to: {}'.format(output_path + 'detection.jpg'))
+    
+    # prepare image for response
+    _, img_encoded = cv2.imencode('.png', img)
+    response = img_encoded.tostring()
+    
+    #remove temporary image
+    os.remove(image_name)
+
+    try:
+        return Response(response=response, status=200, mimetype='image/png')
+    except FileNotFoundError:
+        abort(404)
