@@ -13,26 +13,26 @@ import os
 from azureml.core.model import Model
 from azureml.contrib.services.aml_request import AMLRequest, rawhttp
 from azureml.contrib.services.aml_response import AMLResponse
+import json
 
 def init():
     os.system('ls -la')
     os.system('pwd')
 
+    os.system('ls azure -la')
+    os.system('cat main.py')
+    os.system('cat model_config_map.json')
+
     global yolo, class_names, classes_path, weights_path, tiny, size, output_path, num_classes, physical_devices
 
     # customize your API through the following parameters
-    classes_path = './data/labels/coco.names'
+    classes_path = './azure/data/labels/coco.names'
     weights_path = Model.get_model_path("yolov3-tf")
     print("Model Path is  ", weights_path)
     tiny = False                    # set to True if using a Yolov3 Tiny model
     size = 416                      # size images are resized to for model
-    output_path = './detections/'   # path to output folder where images with detections are saved
+    output_path = './azure/detections/'   # path to output folder where images with detections are saved
     num_classes = 80                # number of classes in model
-
-    os.system('ls -la')
-    os.system('pwd')
-
-    os.system('ls ./azureml-models/yolov3-tf/2 -la')
 
     # load in weights and classes
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -44,7 +44,7 @@ def init():
     else:
         yolo = YoloV3(classes=num_classes)
 
-    yolo.load_weights('./azureml-models/yolov3-tf/2/yolov3.tf').expect_partial()
+    yolo.load_weights('./azureml-models/yolov3-tf/4/tf/yolov3.tf').expect_partial()
     print('weights loaded')
 
     class_names = [c.strip() for c in open(classes_path).readlines()]
@@ -52,6 +52,8 @@ def init():
 
 @rawhttp
 def run(request):
+    print(request)
+    print('runnnnnnnnn zzz')
     raw_images = []
     images = request.files.getlist("images")
     image_names = []
@@ -103,6 +105,7 @@ def run(request):
     for name in image_names:
         os.remove(name)
     try:
-        return jsonify({"response":response}), 200
+        return AMLResponse(json.dumps(response), 200)
+        #return jsonify({"response":response}), 200
     except FileNotFoundError:
-        abort(404)
+        return AMLResponse("bad request", 500)
