@@ -17,3 +17,4 @@ dependencies:
     - azureml-defaults
     - azureml-contrib-services
     - joblib
+    - yolov3-tf2

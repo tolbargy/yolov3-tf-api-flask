@@ -23,7 +23,8 @@ def main():
 
     print("Registrando Environment...")    
     env = Environment('el-env-yolov3')
-    cd = CondaDependencies(conda_dependencies_file_path='conda-cpu.yml')        
+
+    cd = CondaDependencies(conda_dependencies_file_path='conda-cpu.yml')      
     env.python.conda_dependencies = cd
 
     # Register environment to re-use later
