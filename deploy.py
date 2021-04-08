@@ -21,33 +21,31 @@ def main():
     print('Obteniendo modelo...')
     model = Model(ws, 'yolov3-tf')
 
-    print("Registrando Environment...")    
-    env = Environment('el-env-yolov3')
-
-    cd = CondaDependencies(conda_dependencies_file_path='conda-cpu.yml')      
-    env.python.conda_dependencies = cd
-
-    # Register environment to re-use later
-    env.register(workspace = ws)
-    myenv = Environment.get(workspace=ws, name="el-env-yolov3")
-
     print("Configurando Objects...")
     aciconfig = AciWebservice.deploy_configuration(
-            cpu_cores=2,
-            memory_gb=2,
-            tags={"data":"solo yolov3 tensorflow"},
-            description='yolov3 y tensorflow'
-            )
+        cpu_cores=2,
+        memory_gb=2,
+        tags={"data":"solo yolov3 tensorflow"},
+        description='yolov3 y tensorflow'
+    )
 
-    inference_config = InferenceConfig(entry_script="score.py", environment=myenv)
+    inference_config = InferenceConfig(
+        entry_script="score.py",
+        source_directory="./lib",
+        conda_file='conda-cpu.yml',
+        runtime='python'
+    )
     
     print("Desplegando...")
-    service = Model.deploy(workspace=ws,
-                name='yolov3-tf-deploy',
-                models=[model],
-                inference_config=inference_config,
-                deployment_config=aciconfig, 
-                overwrite = True)
+    service = Model.deploy(
+        workspace=ws,
+        name='yolov3-tf-deploy',
+        models=[model],
+        inference_config=inference_config,
+        deployment_config=aciconfig, 
+        overwrite = True
+    )
+    
     service.wait_for_deployment(show_output=True)
     url = service.scoring_uri
     print(url)
