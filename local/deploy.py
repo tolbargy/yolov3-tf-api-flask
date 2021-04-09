@@ -15,7 +15,8 @@ def main():
         cpu_cores=2,
         memory_gb=2,
         tags={"data":"solo yolov3 tensorflow"},
-        description='yolov3 y tensorflow'
+        description='yolov3 y tensorflow',
+        dns_name_label='ceibatest'
     )
 
     inference_config = InferenceConfig(
