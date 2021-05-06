@@ -13,7 +13,7 @@ import os
 
 # customize your API through the following parameters
 classes_path = './data/labels/coco.names'
-weights_path = './weights/yolov3.tf'
+weights_path = './weights/tf/yolov3.tf'
 tiny = False                    # set to True if using a Yolov3 Tiny model
 size = 416                      # size images are resized to for model
 output_path = './detections/'   # path to output folder where images with detections are saved
